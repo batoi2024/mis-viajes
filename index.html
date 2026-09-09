@@ -809,10 +809,13 @@
         <div class="container">
             <h2 class="section-title">¿Quieres viajar conmigo?</h2>
             <p class="section-subtitle">Compárteme tu próximo destino o cuéntame tu experiencia</p>
-            <form class="contact-form" id="contactForm">
-                <input type="text" placeholder="Tu nombre" required>
-                <input type="email" placeholder="Tu email" required>
-                <textarea placeholder="Cuéntame tu viaje..." rows="5" required></textarea>
+            <form class="contact-form" id="contactForm" action="https://formsubmit.co/miguelitopuntocom@gmail.com" method="POST">
+                <input type="text" name="nombre" placeholder="Tu nombre" required>
+                <input type="email" name="email" placeholder="Tu email" required>
+                <textarea name="mensaje" placeholder="Cuéntame tu viaje..." rows="5" required></textarea>
+                <input type="hidden" name="_next" value="https://tousuario.github.io/mis-viajes/">
+                <input type="hidden" name="_captcha" value="false">
+                <input type="hidden" name="_subject" value="Nuevo mensaje desde Mis Viajes">
                 <button type="submit" class="btn">Enviar mensaje</button>
             </form>
         </div>
@@ -920,15 +923,38 @@
             cardObserver.observe(card);
         });
 
-        document.getElementById('contactForm').addEventListener('submit', (e) => {
+        document.getElementById('contactForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = e.target.querySelector('.btn');
-            btn.textContent = '¡Mensaje enviado!';
-            btn.style.background = '#22c55e';
+            const form = e.target;
+            const btn = form.querySelector('.btn');
+            const originalText = btn.textContent;
+            
+            btn.textContent = 'Enviando...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    btn.textContent = '¡Mensaje enviado!';
+                    btn.style.background = '#22c55e';
+                    form.reset();
+                } else {
+                    throw new Error('Error en el envío');
+                }
+            } catch (error) {
+                btn.textContent = 'Error. Intenta de nuevo';
+                btn.style.background = '#ef4444';
+            }
+            
             setTimeout(() => {
-                btn.textContent = 'Enviar mensaje';
+                btn.textContent = originalText;
                 btn.style.background = '';
-                e.target.reset();
+                btn.disabled = false;
             }, 3000);
         });
 
