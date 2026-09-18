@@ -496,6 +496,14 @@
             overflow: hidden;
             position: relative;
             cursor: pointer;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .galeria-item.visible {
+            opacity: 1;
+            transform: scale(1);
         }
 
         .galeria-item::after {
@@ -676,16 +684,17 @@
             inset: 0;
             background: rgba(0,0,0,0.95);
             z-index: 2000;
-            display: none;
+            display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
 
         .lightbox.active {
-            display: flex;
             opacity: 1;
+            visibility: visible;
         }
 
         .lightbox img {
@@ -1356,24 +1365,17 @@
             }, 3000);
         });
 
+        // Gallery animation - using CSS class instead of inline styles
         const galleryItems = document.querySelectorAll('.galeria-item');
         const galleryObserver = new IntersectionObserver((entries) => {
-            entries.forEach((entry, i) => {
+            entries.forEach((entry) => {
                 if (entry.isIntersecting) {
-                    setTimeout(() => {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'scale(1)';
-                    }, i * 100);
+                    entry.target.classList.add('visible');
                 }
             });
         }, { threshold: 0.2 });
 
-        galleryItems.forEach(item => {
-            item.style.opacity = '0';
-            item.style.transform = 'scale(0.9)';
-            item.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-            galleryObserver.observe(item);
-        });
+        galleryItems.forEach(item => galleryObserver.observe(item));
 
         // Dark Mode
         const darkToggle = document.getElementById('darkToggle');
@@ -1398,14 +1400,16 @@
         const lightboxNext = document.getElementById('lightboxNext');
         let currentImageIndex = 0;
 
-        function getGalleryImages() {
-            return document.querySelectorAll('.galeria-item img');
+        function getAllGalleryImages() {
+            return Array.from(document.querySelectorAll('.galeria-item img'));
         }
 
         function openLightbox(index) {
-            const images = getGalleryImages();
+            const images = getAllGalleryImages();
+            if (images.length === 0) return;
             currentImageIndex = index;
-            lightboxImg.src = images[index].src.replace('w=500', 'w=1200');
+            const src = images[index].src;
+            lightboxImg.src = src.includes('w=500') ? src.replace('w=500', 'w=1200') : src;
             lightbox.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
@@ -1415,34 +1419,32 @@
             document.body.style.overflow = '';
         }
 
-        function setupGalleryEvents() {
-            const images = getGalleryImages();
-            images.forEach((img, index) => {
-                img.removeEventListener('click', img._clickHandler);
-                img._clickHandler = () => openLightbox(index);
-                img.addEventListener('click', img._clickHandler);
+        function setupGalleryClicks() {
+            document.querySelectorAll('.galeria-item').forEach((item, index) => {
+                item.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openLightbox(index);
+                };
             });
         }
 
-        setupGalleryEvents();
+        setupGalleryClicks();
 
-        lightboxClose.addEventListener('click', closeLightbox);
-
-        lightbox.addEventListener('click', (e) => {
-            if (e.target === lightbox) closeLightbox();
-        });
-
-        lightboxPrev.addEventListener('click', () => {
-            const images = getGalleryImages();
+        lightboxClose.onclick = closeLightbox;
+        lightbox.onclick = (e) => { if (e.target === lightbox) closeLightbox(); };
+        lightboxPrev.onclick = () => {
+            const images = getAllGalleryImages();
             currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
-            lightboxImg.src = images[currentImageIndex].src.replace('w=500', 'w=1200');
-        });
-
-        lightboxNext.addEventListener('click', () => {
-            const images = getGalleryImages();
+            const src = images[currentImageIndex].src;
+            lightboxImg.src = src.includes('w=500') ? src.replace('w=500', 'w=1200') : src;
+        };
+        lightboxNext.onclick = () => {
+            const images = getAllGalleryImages();
             currentImageIndex = (currentImageIndex + 1) % images.length;
-            lightboxImg.src = images[currentImageIndex].src.replace('w=500', 'w=1200');
-        });
+            const src = images[currentImageIndex].src;
+            lightboxImg.src = src.includes('w=500') ? src.replace('w=500', 'w=1200') : src;
+        };
 
         document.addEventListener('keydown', (e) => {
             if (!lightbox.classList.contains('active')) return;
@@ -1451,28 +1453,47 @@
             if (e.key === 'ArrowRight') lightboxNext.click();
         });
 
-        // Añadir foto personal
-        document.getElementById('addPhotoBtn').addEventListener('click', () => {
-            const url = prompt('Pega la URL de tu imagen:');
-            if (!url) return;
-            const desc = prompt('Describe la imagen (ej: "Mi playa favorita"):') || 'Mi foto';
+        // Añadir foto personal con localStorage
+        function loadSavedPhotos() {
+            const saved = JSON.parse(localStorage.getItem('misViajesFotos') || '[]');
+            const grid = document.getElementById('galeriaGrid');
+            saved.forEach(foto => addPhotoToGrid(foto.url, foto.desc, false));
+            setupGalleryClicks();
+        }
 
+        function savePhotosToStorage() {
+            const photos = [];
+            document.querySelectorAll('.galeria-item').forEach(item => {
+                const img = item.querySelector('img');
+                if (img && !img.src.includes('unsplash')) {
+                    photos.push({ url: img.src, desc: img.alt });
+                }
+            });
+            localStorage.setItem('misViajesFotos', JSON.stringify(photos));
+        }
+
+        function addPhotoToGrid(url, desc, save = true) {
             const grid = document.getElementById('galeriaGrid');
             const item = document.createElement('div');
             item.className = 'galeria-item';
-            item.style.opacity = '0';
-            item.style.transform = 'scale(0.9)';
             item.innerHTML = `<img src="${url}" alt="${desc}" loading="lazy">`;
             grid.appendChild(item);
+            setTimeout(() => item.classList.add('visible'), 50);
+            if (save) savePhotosToStorage();
+        }
 
-            setTimeout(() => {
-                item.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                item.style.opacity = '1';
-                item.style.transform = 'scale(1)';
-            }, 50);
+        document.getElementById('addPhotoBtn').onclick = () => {
+            const url = prompt('Pega la URL de tu imagen:');
+            if (!url || !url.startsWith('http')) {
+                alert('URL no válida. Debe empezar con http o https');
+                return;
+            }
+            const desc = prompt('Describe la imagen (ej: "Mi playa favorita"):') || 'Mi foto';
+            addPhotoToGrid(url, desc, true);
+            setupGalleryClicks();
+        };
 
-            setupGalleryEvents();
-        });
+        loadSavedPhotos();
 
         // Filtros de destinos
         const filtroBtns = document.querySelectorAll('.filtro-btn');
