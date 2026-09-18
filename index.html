@@ -3,7 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Descubre los mejores destinos de viaje: Tailandia, Japón, Filipinas. Guías de viaje, consejos y experiencias de viajes por el mundo.">
+    <meta name="keywords" content="viajes, destinos, Tailandia, Japón, Filipinas, turismo, aventura, playas, cultura">
+    <meta name="author" content="Miguel Ángel Ruiz Navarro">
+    <meta name="robots" content="index, follow">
+    <!-- Open Graph -->
+    <meta property="og:title" content="Mis Viajes | Miguel Ángel Ruiz Navarro">
+    <meta property="og:description" content="Descubre los mejores destinos de viaje: Tailandia, Japón, Filipinas. Guías de viaje y experiencias.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&q=80">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tousuario.github.io/mis-viajes/">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Mis Viajes | Miguel Ángel Ruiz Navarro">
+    <meta name="twitter:description" content="Descubre los mejores destinos de viaje.">
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&q=80">
     <title>Mis Viajes | Miguel Ángel Ruiz Navarro</title>
+    <link rel="canonical" href="https://tousuario.github.io/mis-viajes/">
+    <!-- Preload imagen hero -->
+    <link rel="preload" as="image" href="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600&q=80">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         *,
         *::before,
@@ -596,6 +616,288 @@
             }
         }
 
+        /* Dark Mode */
+        body.dark-mode {
+            --light: #0f172a;
+            --white: #1e293b;
+            --dark: #f1f5f9;
+            --gray: #94a3b8;
+        }
+
+        .dark-toggle {
+            background: none;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dark-toggle:hover {
+            border-color: var(--accent);
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Filtros */
+        .filtros {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .filtro-btn {
+            padding: 10px 24px;
+            border: 2px solid var(--primary);
+            background: transparent;
+            color: var(--primary);
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filtro-btn:hover,
+        .filtro-btn.active {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        /* Lightbox */
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .lightbox.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .lightbox img {
+            max-width: 90vw;
+            max-height: 85vh;
+            border-radius: 8px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 24px;
+            right: 32px;
+            font-size: 2.5rem;
+            color: white;
+            cursor: pointer;
+            transition: var(--transition);
+            background: none;
+            border: none;
+        }
+
+        .lightbox-close:hover {
+            color: var(--accent);
+            transform: rotate(90deg);
+        }
+
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2.5rem;
+            color: white;
+            cursor: pointer;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            padding: 16px;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .lightbox-nav:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .lightbox-prev { left: 24px; }
+        .lightbox-next { right: 24px; }
+
+        /* Testimonios */
+        .testimonios {
+            padding: 100px 0;
+            background: var(--white);
+        }
+
+        .testimonios-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .testimonio-card {
+            background: var(--light);
+            padding: 32px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .testimonio-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .testimonio-card::before {
+            content: '"';
+            position: absolute;
+            top: 16px;
+            right: 24px;
+            font-size: 4rem;
+            color: var(--primary);
+            opacity: 0.2;
+            font-family: Georgia, serif;
+            line-height: 1;
+        }
+
+        .testimonio-text {
+            color: var(--gray);
+            line-height: 1.7;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .testimonio-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .testimonio-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .testimonio-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .testimonio-dest {
+            font-size: 0.85rem;
+            color: var(--primary);
+        }
+
+        /* Mapa */
+        .mapa-section {
+            padding: 100px 0;
+            background: var(--light);
+        }
+
+        #mapa {
+            height: 400px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            z-index: 1;
+        }
+
+        /* Newsletter */
+        .newsletter {
+            padding: 60px 0;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            text-align: center;
+        }
+
+        .newsletter h2 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .newsletter p {
+            opacity: 0.9;
+            margin-bottom: 24px;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .newsletter-form input {
+            flex: 1;
+            min-width: 250px;
+            padding: 14px 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50px;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .newsletter-form input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .newsletter-form input:focus {
+            border-color: var(--accent);
+            background: rgba(255,255,255,0.2);
+        }
+
+        .newsletter-form .btn {
+            background: var(--accent);
+        }
+
+        /* Social links */
+        .social-links {
+            display: flex;
+            gap: 16px;
+            margin-top: 24px;
+            justify-content: center;
+        }
+
+        .social-link {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+
+        .social-link:hover {
+            background: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        @media (max-width: 900px) {
+            .testimonios-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         @media (max-width: 640px) {
             .navbar {
                 padding: 14px 20px;
@@ -643,7 +945,7 @@
 <body>
 
     <nav class="navbar">
-        <a href="#inicio" class="logo">Mis Viajes</a>
+        <a href="#inicio" class="logo">✈ Mis Viajes</a>
         <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">
             <span></span><span></span><span></span>
         </button>
@@ -651,8 +953,11 @@
             <li><a href="#inicio">Inicio</a></li>
             <li><a href="#destinos">Destinos</a></li>
             <li><a href="#sobre-mi">Sobre mí</a></li>
+            <li><a href="#testimonios">Testimonios</a></li>
+            <li><a href="#mapa">Mapa</a></li>
             <li><a href="#contacto">Contacto</a></li>
         </ul>
+        <button class="dark-toggle" id="darkToggle" aria-label="Cambiar tema">🌙</button>
     </nav>
 
     <header id="inicio" class="hero">
@@ -673,8 +978,14 @@
         <div class="container">
             <h2 class="section-title">Mis Destinos</h2>
             <p class="section-subtitle">Los lugares que me han robado el corazón</p>
+            <div class="filtros">
+                <button class="filtro-btn active" data-filtro="todos">Todos</button>
+                <button class="filtro-btn" data-filtro="asia">Asia</button>
+                <button class="filtro-btn" data-filtro="playa">Playa</button>
+                <button class="filtro-btn" data-filtro="cultura">Cultura</button>
+            </div>
             <div class="destinos-grid">
-                <article class="destino-card" data-destino="thailandia">
+                <article class="destino-card" data-destino="thailandia" data-region="asia" data-tipo="playa cultura">
                     <div class="destino-img">
                         <img src="https://images.unsplash.com/photo-1528181304800-259b08848526?w=800&q=80" alt="Tailandia">
                         <div class="destino-overlay">
@@ -695,7 +1006,7 @@
                         </p>
                     </div>
                 </article>
-                <article class="destino-card" data-destino="japon">
+                <article class="destino-card" data-destino="japon" data-region="asia" data-tipo="cultura">
                     <div class="destino-img">
                         <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&q=80" alt="Japón">
                         <div class="destino-overlay">
@@ -717,7 +1028,7 @@
                         </p>
                     </div>
                 </article>
-                <article class="destino-card" data-destino="filipinas">
+                <article class="destino-card" data-destino="filipinas" data-region="asia" data-tipo="playa">
                     <div class="destino-img">
                         <img src="https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=800&q=80" alt="Filipinas">
                         <div class="destino-overlay">
@@ -784,24 +1095,82 @@
             <h2 class="section-title">Momentos en Imágenes</h2>
             <div class="galeria-grid">
                 <div class="galeria-item">
-                    <img src="https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=500&q=80" alt="Templo Tailandia">
+                    <img src="https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=500&q=80" alt="Templo Tailandia" loading="lazy">
                 </div>
                 <div class="galeria-item">
-                    <img src="https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=500&q=80" alt="Monte Fuji">
+                    <img src="https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=500&q=80" alt="Monte Fuji" loading="lazy">
                 </div>
                 <div class="galeria-item">
-                    <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=500&q=80" alt="Playa Filipinas">
+                    <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=500&q=80" alt="Playa Filipinas" loading="lazy">
                 </div>
                 <div class="galeria-item">
-                    <img src="https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=500&q=80" alt="Comida tailandesa">
+                    <img src="https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=500&q=80" alt="Comida tailandesa" loading="lazy">
                 </div>
                 <div class="galeria-item">
-                    <img src="https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=500&q=80" alt="Kioto Japón">
+                    <img src="https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=500&q=80" alt="Kioto Japón" loading="lazy">
                 </div>
                 <div class="galeria-item">
-                    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&q=80" alt="Playa paradisíaca">
+                    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&q=80" alt="Playa paradisíaca" loading="lazy">
                 </div>
             </div>
+        </div>
+    </section>
+
+    <section id="testimonios" class="testimonios">
+        <div class="container">
+            <h2 class="section-title">Lo que dicen otros viajeros</h2>
+            <p class="section-subtitle">Experiencias compartidas de nuestra comunidad</p>
+            <div class="testimonios-grid">
+                <div class="testimonio-card">
+                    <p class="testimonio-text">"Gracias a esta página descubrí Filipinas. El Nido es literalmente el paraíso en la tierra. ¡No puedo volver!"</p>
+                    <div class="testimonio-author">
+                        <img src="https://i.pravatar.cc/96?img=1" alt="Laura" class="testimonio-avatar" loading="lazy">
+                        <div>
+                            <p class="testimonio-name">Laura Martínez</p>
+                            <p class="testimonio-dest">Filipinas, 2025</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonio-card">
+                    <p class="testimonio-text">"La guía de Japón me salvó el viaje. Los templos de Kioto son mágicos, especialmente en otoño con los arces rojos."</p>
+                    <div class="testimonio-author">
+                        <img src="https://i.pravatar.cc/96?img=3" alt="Carlos" class="testimonio-avatar" loading="lazy">
+                        <div>
+                            <p class="testimonio-name">Carlos Rodríguez</p>
+                            <p class="testimonio-dest">Japón, 2024</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonio-card">
+                    <p class="testimonio-text">"Tailandia fue una experiencia transformadora. La comida callejera de Bangkok es increíble y los templos impresionantes."</p>
+                    <div class="testimonio-author">
+                        <img src="https://i.pravatar.cc/96?img=5" alt="María" class="testimonio-avatar" loading="lazy">
+                        <div>
+                            <p class="testimonio-name">María García</p>
+                            <p class="testimonio-dest">Tailandia, 2025</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="mapa" class="mapa-section">
+        <div class="container">
+            <h2 class="section-title">Mis Destinos en el Mapa</h2>
+            <p class="section-subtitle">Explora los lugares que he visitado</p>
+            <div id="mapa-container"></div>
+        </div>
+    </section>
+
+    <section class="newsletter">
+        <div class="container">
+            <h2>Recibe guías de viaje</h2>
+            <p>Suscríbete para recibir consejos, rutas y ofertas de viaje exclusivas</p>
+            <form class="newsletter-form" id="newsletterForm">
+                <input type="email" placeholder="Tu email" required>
+                <button type="submit" class="btn">Suscribirme</button>
+            </form>
         </div>
     </section>
 
@@ -821,9 +1190,22 @@
         </div>
     </section>
 
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" id="lightboxClose">&times;</button>
+        <button class="lightbox-nav lightbox-prev" id="lightboxPrev">&#8249;</button>
+        <button class="lightbox-nav lightbox-next" id="lightboxNext">&#8250;</button>
+        <img src="" alt="Galería" id="lightboxImg">
+    </div>
+
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2026 Miguel Ángel Ruiz Navarro — Hecho con ❤️ y ganas de viajar</p>
+            <div class="social-links">
+                <a href="#" class="social-link" aria-label="Instagram">📷</a>
+                <a href="#" class="social-link" aria-label="YouTube">🎬</a>
+                <a href="#" class="social-link" aria-label="TikTok">🎵</a>
+                <a href="#" class="social-link" aria-label="Twitter">🐦</a>
+            </div>
+            <p style="margin-top: 16px;">&copy; 2026 Miguel Ángel Ruiz Navarro — Hecho con ❤️ y ganas de viajar</p>
         </div>
     </footer>
 
@@ -975,6 +1357,133 @@
             item.style.transform = 'scale(0.9)';
             item.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
             galleryObserver.observe(item);
+        });
+
+        // Dark Mode
+        const darkToggle = document.getElementById('darkToggle');
+        const body = document.body;
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            body.classList.add('dark-mode');
+            darkToggle.textContent = '☀️';
+        }
+        darkToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const isDark = body.classList.contains('dark-mode');
+            darkToggle.textContent = isDark ? '☀️' : '🌙';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+
+        // Lightbox
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+        const lightboxClose = document.getElementById('lightboxClose');
+        const lightboxPrev = document.getElementById('lightboxPrev');
+        const lightboxNext = document.getElementById('lightboxNext');
+        const galleryImages = document.querySelectorAll('.galeria-item img');
+        let currentImageIndex = 0;
+
+        galleryImages.forEach((img, index) => {
+            img.addEventListener('click', () => {
+                currentImageIndex = index;
+                lightboxImg.src = img.src.replace('w=500', 'w=1200');
+                lightbox.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+        });
+
+        lightboxClose.addEventListener('click', () => {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) {
+                lightbox.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
+        lightboxPrev.addEventListener('click', () => {
+            currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
+            lightboxImg.src = galleryImages[currentImageIndex].src.replace('w=500', 'w=1200');
+        });
+
+        lightboxNext.addEventListener('click', () => {
+            currentImageIndex = (currentImageIndex + 1) % galleryImages.length;
+            lightboxImg.src = galleryImages[currentImageIndex].src.replace('w=500', 'w=1200');
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (!lightbox.classList.contains('active')) return;
+            if (e.key === 'Escape') lightboxClose.click();
+            if (e.key === 'ArrowLeft') lightboxPrev.click();
+            if (e.key === 'ArrowRight') lightboxNext.click();
+        });
+
+        // Filtros de destinos
+        const filtroBtns = document.querySelectorAll('.filtro-btn');
+        const destinoCards = document.querySelectorAll('.destino-card');
+
+        filtroBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filtroBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const filtro = btn.dataset.filtro;
+
+                destinoCards.forEach(card => {
+                    if (filtro === 'todos') {
+                        card.style.display = '';
+                        card.style.opacity = '1';
+                    } else {
+                        const tipo = card.dataset.tipo || '';
+                        const region = card.dataset.region || '';
+                        if (tipo.includes(filtro) || region.includes(filtro)) {
+                            card.style.display = '';
+                            card.style.opacity = '1';
+                        } else {
+                            card.style.opacity = '0';
+                            setTimeout(() => card.style.display = 'none', 300);
+                        }
+                    }
+                });
+            });
+        });
+
+        // Mapa con Leaflet
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+        script.onload = () => {
+            const map = L.map('mapa-container').setView([15, 110], 4);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            const markers = [
+                { coords: [13.7563, 100.5018], title: 'Bangkok, Tailandia', desc: 'Templos dorados y comida callejera' },
+                { coords: [35.0116, 135.7681], title: 'Kioto, Japón', desc: 'Santuarios y jardines ancestrales' },
+                { coords: [10.3157, 119.9218], title: 'Palawan, Filipinas', desc: 'Playas de arena blanca' }
+            ];
+
+            markers.forEach(m => {
+                L.marker(m.coords).addTo(map)
+                    .bindPopup(`<strong>${m.title}</strong><br>${m.desc}`);
+            });
+        };
+        document.body.appendChild(script);
+
+        // Newsletter
+        document.getElementById('newsletterForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const input = e.target.querySelector('input');
+            const btn = e.target.querySelector('.btn');
+            btn.textContent = '¡Suscrito!';
+            btn.style.background = '#22c55e';
+            input.value = '';
+            setTimeout(() => {
+                btn.textContent = 'Suscribirme';
+                btn.style.background = '';
+            }, 3000);
         });
     </script>
 </body>
