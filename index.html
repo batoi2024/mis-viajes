@@ -506,6 +506,39 @@
             transform: scale(1);
         }
 
+        .galeria-item .delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 32px;
+            height: 32px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 10;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            line-height: 1;
+        }
+
+        .galeria-item .delete-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .galeria-item:hover .delete-btn {
+            display: flex;
+        }
+
+        .edit-mode .galeria-item .delete-btn {
+            display: flex;
+        }
+
         .galeria-item::after {
             content: '';
             position: absolute;
@@ -1476,11 +1509,51 @@
             const grid = document.getElementById('galeriaGrid');
             const item = document.createElement('div');
             item.className = 'galeria-item';
-            item.innerHTML = `<img src="${url}" alt="${desc}" loading="lazy">`;
+            item.innerHTML = `
+                <button class="delete-btn" title="Eliminar">&times;</button>
+                <img src="${url}" alt="${desc}" loading="lazy">
+            `;
+            item.querySelector('.delete-btn').onclick = (e) => {
+                e.stopPropagation();
+                if (confirm('¿Eliminar esta imagen?')) {
+                    item.style.opacity = '0';
+                    item.style.transform = 'scale(0.5)';
+                    setTimeout(() => {
+                        item.remove();
+                        savePhotosToStorage();
+                    }, 300);
+                }
+            };
             grid.appendChild(item);
             setTimeout(() => item.classList.add('visible'), 50);
             if (save) savePhotosToStorage();
         }
+
+        // Añadir delete-btn a las fotos predefinidas
+        function addDeleteBtnsToExisting() {
+            document.querySelectorAll('.galeria-item').forEach(item => {
+                if (!item.querySelector('.delete-btn')) {
+                    const btn = document.createElement('button');
+                    btn.className = 'delete-btn';
+                    btn.title = 'Eliminar';
+                    btn.innerHTML = '&times;';
+                    btn.onclick = (e) => {
+                        e.stopPropagation();
+                        if (confirm('¿Eliminar esta imagen?')) {
+                            item.style.opacity = '0';
+                            item.style.transform = 'scale(0.5)';
+                            setTimeout(() => {
+                                item.remove();
+                                savePhotosToStorage();
+                            }, 300);
+                        }
+                    };
+                    item.prepend(btn);
+                }
+            });
+        }
+
+        addDeleteBtnsToExisting();
 
         document.getElementById('addPhotoBtn').onclick = () => {
             const url = prompt('Pega la URL de tu imagen:');
